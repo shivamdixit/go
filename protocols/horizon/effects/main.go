@@ -2,6 +2,7 @@ package effects
 
 import (
 	"encoding/json"
+	"strconv"
 	"time"
 
 	"github.com/stellar/go/protocols/horizon/base"
@@ -199,6 +200,39 @@ type AccountFlagsUpdated struct {
 type SequenceBumped struct {
 	Base
 	NewSeq int64 `json:"new_seq,string"`
+}
+
+// UnmarshalJSON is the custom unmarshal method for SequenceBumped
+func (effect *SequenceBumped) UnmarshalJSON(data []byte) error {
+	var raw map[string]interface{}
+	var temp struct {
+		NewSeq int64 `json:"new_seq"`
+	}
+
+	if err := json.Unmarshal(data, &raw); err != nil {
+		return err
+	}
+
+	if s, ok := raw["new_seq"].(string); ok {
+		n, err := strconv.ParseInt(s, 10, 64)
+		if err != nil {
+			return err
+		}
+
+		effect.NewSeq = n
+	} else {
+		if err := json.Unmarshal(data, &temp); err != nil {
+			return err
+		}
+
+		effect.NewSeq = temp.NewSeq
+	}
+
+	if err := json.Unmarshal(data, &effect.Base); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 type SignerCreated struct {
