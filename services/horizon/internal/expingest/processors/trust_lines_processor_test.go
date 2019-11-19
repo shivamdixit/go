@@ -131,7 +131,7 @@ func (s *TrustLinesProcessorTestSuiteLedger) SetupTest() {
 	s.mockAssetStatsQ = &history.MockQAssetStats{}
 
 	s.processor = &DatabaseProcessor{
-		Action:      All,
+		Action:      TrustLines,
 		TrustLinesQ: s.mockQ,
 		AssetStatsQ: s.mockAssetStatsQ,
 	}
